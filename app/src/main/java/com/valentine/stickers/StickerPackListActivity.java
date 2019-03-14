@@ -55,7 +55,7 @@ public class StickerPackListActivity extends AddStickerPackActivity {
     private LinearLayout adView;
     private NativeAdLayout nativeAdLayout;
 
-    private InterstitialAd interstitialAd;
+    //private InterstitialAd interstitialAd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,8 +99,8 @@ public class StickerPackListActivity extends AddStickerPackActivity {
         // load the ad
         nativeBannerAd.loadAd();
 
-        interstitialAd = new InterstitialAd(this, getResources().getString(R.string.fb_interstitial_ads_app_id));
-        interstitialAd.loadAd();
+        /*interstitialAd = new InterstitialAd(this, getResources().getString(R.string.fb_interstitial_ads_app_id));
+        interstitialAd.loadAd();*/
         /*interstitialAd.setAdListener(new InterstitialAdListener() {
             @Override
             public void onInterstitialDisplayed(Ad ad) {
@@ -152,9 +152,9 @@ public class StickerPackListActivity extends AddStickerPackActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // TODO Auto-generated method stub
-                if (interstitialAd.isAdLoaded()) {
+                /*if (interstitialAd.isAdLoaded()) {
                     interstitialAd.show();
-                }
+                }*/
                 finish();
             }
         });
