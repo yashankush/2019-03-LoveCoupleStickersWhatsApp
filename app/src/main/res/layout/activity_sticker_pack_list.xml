@@ -7,6 +7,21 @@
     tools:context=".StickerPackListActivity">
     <!--tools:showIn="@layout/activity_sticker_pack_list"-->
 
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="190dp" />
+
+    <LinearLayout
+        android:id="@+id/SliderDots"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/viewPager"
+        android:layout_marginTop="-20dp"
+        android:elevation="4dp"
+        android:gravity="center_vertical|center_horizontal"
+        android:orientation="horizontal" />
+
     <TextView
         android:id="@+id/error_message"
         android:layout_width="wrap_content"
@@ -15,11 +30,11 @@
         android:textColor="@android:color/holo_red_dark" />
 
     <android.support.v7.widget.RecyclerView
-        android:layout_alignParentTop="true"
-        android:layout_above="@+id/native_banner_ad_container"
         android:id="@+id/sticker_pack_list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/native_banner_ad_container"
+        android:layout_below="@+id/viewPager" />
 
     <com.facebook.ads.NativeAdLayout
         android:id="@+id/native_banner_ad_container"

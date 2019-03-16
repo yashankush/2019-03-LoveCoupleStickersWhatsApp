@@ -13,6 +13,9 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -23,6 +26,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -35,11 +39,22 @@ import com.facebook.ads.InterstitialAd;
 import com.facebook.ads.NativeAdLayout;
 import com.facebook.ads.NativeAdListener;
 import com.facebook.ads.NativeBannerAd;
+import com.valentine.stickers.imagesliderbanner.API;
+import com.valentine.stickers.imagesliderbanner.MyBanner;
+import com.valentine.stickers.imagesliderbanner.ViewPagerAdapter;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 
 public class StickerPackListActivity extends AddStickerPackActivity {
@@ -57,10 +72,23 @@ public class StickerPackListActivity extends AddStickerPackActivity {
 
     //private InterstitialAd interstitialAd;
 
+    //Top Banner Ads
+    ViewPager viewPager;
+    ViewPagerAdapter viewPagerAdapter;
+    LinearLayout sliderDotspanel;
+    private int dotscount;
+    private ImageView[] dots;
+    Timer timer;
+    TimerTask timerTask;
+    final Handler handler = new Handler();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sticker_pack_list);
+
+        promoMyBannerAds();
+
         packRecyclerView = findViewById(R.id.sticker_pack_list);
         stickerPackList = getIntent().getParcelableArrayListExtra(EXTRA_STICKER_PACK_LIST_DATA);
         showStickerPackList(stickerPackList);
@@ -136,6 +164,113 @@ public class StickerPackListActivity extends AddStickerPackActivity {
         });*/
     }
 
+    private void promoMyBannerAds() {
+        viewPager = findViewById(R.id.viewPager);
+        sliderDotspanel = findViewById(R.id.SliderDots);
+
+        jsonParsingUsingRetrofit();
+    }
+
+    private void jsonParsingUsingRetrofit() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(API.BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        API api = retrofit.create(API.class);
+        Call<List<MyBanner>> myBannerCall = api.getMyBaners();
+        myBannerCall.enqueue(new Callback<List<MyBanner>>() {
+            @Override
+            public void onResponse(Call<List<MyBanner>> call, Response<List<MyBanner>> response) {
+                List<MyBanner> myBanners = response.body();
+                setupViewPagerBannerAds(myBanners);
+            }
+
+            @Override
+            public void onFailure(Call<List<MyBanner>> call, Throwable t) {
+            }
+        });
+    }
+
+    private void setupViewPagerBannerAds(List<MyBanner> myBanners) {
+
+        List<MyBanner> myBannersRemoveElement = new ArrayList<>();
+
+        for (MyBanner myBanner : myBanners) {
+            if (myBanner.getAppName().contains(getString(R.string.app_name))) {
+                myBannersRemoveElement.add(myBanner);
+            }
+        }
+
+        myBanners.removeAll(myBannersRemoveElement);
+
+        viewPagerAdapter = new ViewPagerAdapter(this, myBanners);
+
+        viewPager.setAdapter(viewPagerAdapter);
+        dotscount = viewPagerAdapter.getCount();
+        dots = new ImageView[dotscount];
+
+        startTimer();
+
+        for (int i = 0; i < dotscount; i++) {
+
+            dots[i] = new ImageView(this);
+            dots[i].setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.non_active_dot));
+
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+
+            params.setMargins(8, 0, 8, 0);
+
+            sliderDotspanel.addView(dots[i], params);
+
+        }
+
+        dots[0].setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.active_dot));
+
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+
+                for (int i = 0; i < dotscount; i++) {
+                    dots[i].setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.non_active_dot));
+                }
+
+                dots[position].setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.active_dot));
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+    }
+
+    private void startTimer() {
+        timer = new Timer();
+        timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (viewPager.getCurrentItem() < viewPagerAdapter.getCount() - 1) {
+                            viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
+                        } else {
+                            viewPager.setCurrentItem(0);
+                        }
+                    }
+                });
+            }
+        };
+        timer.schedule(timerTask, 10000, 10000);
+    }
+
     @Override
     public void onBackPressed() {
         //super.onBackPressed();
@@ -143,11 +278,11 @@ public class StickerPackListActivity extends AddStickerPackActivity {
     }
 
     private void showAlertDialog() {
-        AlertDialog.Builder builder=new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
         // builder.setCancelable(false);
         builder.setTitle("Rate us if u like this app");
         builder.setMessage("Do you want to Exit?");
-        builder.setPositiveButton("yes",new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("yes", new DialogInterface.OnClickListener() {
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -155,19 +290,25 @@ public class StickerPackListActivity extends AddStickerPackActivity {
                 /*if (interstitialAd.isAdLoaded()) {
                     interstitialAd.show();
                 }*/
+                if (isFinishing()) {
+                    timerTask.cancel();
+                }
                 finish();
             }
         });
-        builder.setNegativeButton("No",new DialogInterface.OnClickListener() {
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // TODO Auto-generated method stub
                 dialog.cancel();
             }
         });
-        builder.setNeutralButton("Rate",new DialogInterface.OnClickListener() {
+        builder.setNeutralButton("Rate", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                if (isFinishing()) {
+                    timerTask.cancel();
+                }
                 try {
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + getPackageName())));
                 } catch (android.content.ActivityNotFoundException anfe) {
@@ -175,7 +316,7 @@ public class StickerPackListActivity extends AddStickerPackActivity {
                 }
             }
         });
-        AlertDialog alert=builder.create();
+        AlertDialog alert = builder.create();
         alert.show();
     }
 
