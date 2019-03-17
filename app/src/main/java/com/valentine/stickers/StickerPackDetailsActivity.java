@@ -72,7 +72,7 @@ public class StickerPackDetailsActivity extends AddStickerPackActivity {
     private LinearLayout adView;
     private NativeAdLayout nativeAdLayout;
 
-    private InterstitialAd interstitialAd;
+    //private InterstitialAd interstitialAd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -147,9 +147,9 @@ public class StickerPackDetailsActivity extends AddStickerPackActivity {
         // load the ad
         nativeBannerAd.loadAd();
 
-        interstitialAd = new InterstitialAd(this, getResources().getString(R.string.fb_interstitial_ads_app_id));
+        //interstitialAd = new InterstitialAd(this, getResources().getString(R.string.fb_interstitial_ads_app_id));
 
-        interstitialAd.setAdListener(new InterstitialAdListener() {
+        /*interstitialAd.setAdListener(new InterstitialAdListener() {
             @Override
             public void onInterstitialDisplayed(Ad ad) {
                 // Interstitial ad displayed callback
@@ -181,11 +181,11 @@ public class StickerPackDetailsActivity extends AddStickerPackActivity {
             public void onLoggingImpression(Ad ad) {
                 // Ad impression logged callback
             }
-        });
+        });*/
 
         // For auto play video ads, it's recommended to load the ad
         // at least 30 seconds before it is shown
-        interstitialAd.loadAd();
+        //interstitialAd.loadAd();
     }
 
     private void inflateAd(NativeBannerAd nativeBannerAd) {
@@ -351,8 +351,8 @@ public class StickerPackDetailsActivity extends AddStickerPackActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        if (interstitialAd.isAdLoaded()) {
+        /*if (interstitialAd.isAdLoaded()) {
             interstitialAd.show();
-        }
+        }*/
     }
 }
