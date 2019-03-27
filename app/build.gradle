@@ -23,17 +23,17 @@ android {
     }
     compileSdkVersion 28
     defaultConfig {
-        applicationId "com.valentine.stickers"
+        applicationId "com.wastickerapps.newlove2019stickers"
         minSdkVersion 15
         targetSdkVersion 28
-        versionCode 10
-        versionName "1.1.0"
+        versionCode 5
+        versionName "1.5"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         def contentProviderAuthority = applicationId + ".stickercontentprovider"
         // Creates a placeholder property to use in the manifest.
         manifestPlaceholders =
                 [contentProviderAuthority: contentProviderAuthority,
-                 onesignal_app_id: '13ad7539-017b-4fda-89f8-9586fb88b860',
+                 onesignal_app_id: '8b03db22-2af9-4171-8a06-ae6dfd9101b8',
                  // Project number pulled from dashboard, local value is ignored.
                  onesignal_google_project_number: 'REMOTE']
         // Adds a new field for the authority to the BuildConfig class.
